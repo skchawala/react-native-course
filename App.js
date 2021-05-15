@@ -1,72 +1,74 @@
-import {StatusBar} from 'expo-status-bar';
-import React, {useState} from 'react';
-import {StyleSheet, View, FlatList,Button} from 'react-native';
-import GoalItem from './components/GoalItem'
-import GoalInput from './components/GoalInput'
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import Header from "./components/Header";
+import StartGameScreen from "./screens/StartGameScreen";
+import strings from "./constants/strings";
+import GameScreen from "./screens/GameScreen";
+import GameOverScreen from "./screens/GameOverScreen";
+import * as Font from "expo-font";
+import AppLoading from "expo-app-loading";
+import openSans from "./assets/fonts/OpenSans-Regular.ttf";
+import openSansBold from "./assets/fonts/OpenSans-Bold.ttf";
 
-export default function App() {
+const fetchFonts = () => {
+  return Font.loadAsync({
+    "open-sans": openSans,
+    "open-sans-bold": openSansBold,
+  });
+};
+const App = (props) => {
+  const [isFontsLoaded, setIsFontsLoaded] = React.useState(false);
+  const [userNumber, setUserNumber] = React.useState();
+  const [guessedRounds, setGuessRounds] = React.useState(0);
 
-
-    const [courseGoals, setCourseGoals] = useState([])
-    const [isModalOpen,setIsModalOpen] = useState(false)
-    const onAddGoal = (goal) => {
-
-        if(!goal||goal.length===0){
-            return
-        }
-
-        setCourseGoals((courseGoals) => {
-            return [...courseGoals, {key: Math.random().toString(), value: goal}]
-        })
-        toggleOpenModal()
-    }
-
-    const onDelete = (goalId) => {
-        setCourseGoals((courseGoals) => courseGoals.filter((item) => item.key !== goalId))
-    }
-
-    const toggleOpenModal = ()=>{
-        setIsModalOpen(!isModalOpen)
-    }
-
-
-
+  if (!isFontsLoaded) {
     return (
-        <View style={styles.root}>
-            <Button  title={'Add new goal'} onPress={toggleOpenModal}/>
-            <GoalInput onClose={toggleOpenModal} isOpen={isModalOpen} onAddGoal={onAddGoal}/>
-            <FlatList style={{marginTop:10}} data={courseGoals} renderItem={(itemData, index) => {
-                return <GoalItem onDelete={onDelete} itemData={itemData}/>
-            }}/>
-            <StatusBar style="auto"/>
-        </View>
+      <AppLoading
+        startAsync={fetchFonts}
+        onFinish={() => setIsFontsLoaded(true)}
+        onError={console.warn}
+      />
     );
-}
+  }
+
+  const startGameHnadler = (selectedNumber) => {
+    setUserNumber(selectedNumber);
+  };
+  const gameOverHandler = (numberOfRounds) => {
+    setGuessRounds(numberOfRounds);
+  };
+  const onRestart = () => {
+    setUserNumber();
+    setGuessRounds(0);
+  };
+  let content = <StartGameScreen startGameHnadler={startGameHnadler} />;
+
+  if (userNumber && guessedRounds <= 0) {
+    content = (
+      <GameScreen userChoice={userNumber} gameOverHandler={gameOverHandler} />
+    );
+  } else if (guessedRounds > 0) {
+    content = (
+      <GameOverScreen
+        restart={onRestart}
+        userNumber={userNumber}
+        guessedRounds={guessedRounds}
+      />
+    );
+  }
+
+  return (
+    <View style={styles.root}>
+      <Header title={strings.appTitle} />
+      {content}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-    root: {
-        paddingHorizontal: 30,
-        paddingVertical: 60,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        marginBottom: 20,
-    },
-
-    textInput: {
-        borderColor: "black",
-        borderWidth: 1,
-        padding: 5,
-        marginRight: 5,
-        flexGrow: 1,
-    },
-    itemsContainer: {},
-
-    item: {
-        borderColor: "black",
-        borderWidth: 1,
-        padding: 5,
-        marginBottom: 10,
-        backgroundColor: '#c1c1c1'
-    }
+  root: {
+    flex: 1,
+  },
 });
+
+export default App;
