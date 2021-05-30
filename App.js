@@ -1,14 +1,22 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import Header from "./components/Header";
-import StartGameScreen from "./screens/StartGameScreen";
-import strings from "./constants/strings";
-import GameScreen from "./screens/GameScreen";
-import GameOverScreen from "./screens/GameOverScreen";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
 import openSans from "./assets/fonts/OpenSans-Regular.ttf";
 import openSansBold from "./assets/fonts/OpenSans-Bold.ttf";
+import MealsNavigator from "./navigation/MealsNavigation";
+import { createStore, combineReducers } from "redux";
+import { Provider } from "react-redux";
+import mealsReducer from "./store/reducers/meals";
+// import { composeWithDevTools } from "redux-devtools-extension";
+import { compose } from "redux";
+
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+const rootReducer = combineReducers({
+  meals: mealsReducer,
+});
+const store = createStore(rootReducer, composeEnhancers());
 
 const fetchFonts = () => {
   return Font.loadAsync({
@@ -18,8 +26,6 @@ const fetchFonts = () => {
 };
 const App = (props) => {
   const [isFontsLoaded, setIsFontsLoaded] = React.useState(false);
-  const [userNumber, setUserNumber] = React.useState();
-  const [guessedRounds, setGuessRounds] = React.useState(0);
 
   if (!isFontsLoaded) {
     return (
@@ -30,45 +36,15 @@ const App = (props) => {
       />
     );
   }
-
-  const startGameHnadler = (selectedNumber) => {
-    setUserNumber(selectedNumber);
-  };
-  const gameOverHandler = (numberOfRounds) => {
-    setGuessRounds(numberOfRounds);
-  };
-  const onRestart = () => {
-    setUserNumber();
-    setGuessRounds(0);
-  };
-  let content = <StartGameScreen startGameHnadler={startGameHnadler} />;
-
-  if (userNumber && guessedRounds <= 0) {
-    content = (
-      <GameScreen userChoice={userNumber} gameOverHandler={gameOverHandler} />
-    );
-  } else if (guessedRounds > 0) {
-    content = (
-      <GameOverScreen
-        restart={onRestart}
-        userNumber={userNumber}
-        guessedRounds={guessedRounds}
-      />
-    );
-  }
-
   return (
-    <View style={styles.root}>
-      <Header title={strings.appTitle} />
-      {content}
-    </View>
+    <Provider store={store}>
+      <MealsNavigator />
+    </Provider>
   );
 };
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
+  root: {},
 });
 
 export default App;
