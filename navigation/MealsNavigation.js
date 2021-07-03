@@ -13,18 +13,7 @@ import { createMaterialBottomTabNavigator } from "react-navigation-material-bott
 import {} from "react-native-paper";
 import { createDrawerNavigator } from "react-navigation-drawer";
 import FiltersScreen from "../screens/FiltersScreen";
-const defaultNavigationOptions = {
-  headerStyle: {
-    backgroundColor: colors.primary,
-  },
-  headerTitleStyle: {
-    fontFamily: "open-sans-bold",
-  },
-  headerBackTitleStyle: {
-    fontFamily: "open-sans",
-  },
-  headerTintColor: "white",
-};
+c
 const MealsNavigator = createStackNavigator(
   {
     Categories: {
