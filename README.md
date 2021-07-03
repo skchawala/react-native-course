@@ -9,3 +9,5 @@ react native course and developed apps throughout the course
 ## 3. MEALS APP (branch: meals_app)
 
 ## 4. SHOP APP (branch:  shop_app)
+
+## 5. SHOP APP V2 (branch:  shop_app_v2)
