@@ -45,7 +45,7 @@ const EditProductScreen = (props) => {
   const editedProduct = useSelector((state) =>
     state.products.userProducts.find((prod) => prod.id === productId)
   );
-
+  const token = useSelector((state) => state.auth.token);
   const dispatch = useDispatch();
 
   const [formState, dispatchFormState] = useReducer(formReducer, {
@@ -80,7 +80,7 @@ const EditProductScreen = (props) => {
   };
   const { title, description, price, imageUrl } = formState.inputValues;
 
-  const submitHandler = useCallback(() => {
+  const submitHandler = useCallback(async () => {
     if (!formState.isFormValid) {
       Alert.alert("Wrong Input!", "Please check the error in form", [
         {
@@ -89,13 +89,26 @@ const EditProductScreen = (props) => {
       ]);
       return;
     }
+    let action;
     if (editedProduct) {
-      dispatch(updateProduct(productId, title, description, imageUrl));
+      action = updateProduct(token, productId, title, description, imageUrl);
     } else {
-      dispatch(createProduct(title, description, imageUrl, +price));
+      action = createProduct(token, title, description, imageUrl, +price);
     }
+
+    try {
+      await dispatch(action);
+    } catch (e) {
+      console.log(action);
+      Alert.alert("Error Occured", e.message, [
+        {
+          text: "Ok",
+        },
+      ]);
+    }
+
     props.navigation.goBack();
-  }, [dispatch, productId, formState]);
+  }, [dispatch, productId, formState, token]);
 
   useEffect(() => {
     props.navigation.setParams({

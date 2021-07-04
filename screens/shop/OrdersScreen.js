@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import CustomHeaderButtons from "../../components/CustomHeaderButtons";
 import OrderItem from "../../components/shop/OrderItem";
 const OrdersScreen = (props) => {
+    console.log('Order-------------')
   const orders = useSelector((state) => state.orders.orders);
   return (
     <FlatList
