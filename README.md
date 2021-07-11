@@ -11,3 +11,5 @@ react native course and developed apps throughout the course
 ## 4. SHOP APP (branch:  shop_app)
 
 ## 5. SHOP APP V2 (branch:  shop_app_v2)
+
+## 6. PLACES APP (branch: device_features)
