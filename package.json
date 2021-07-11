@@ -36,7 +36,12 @@
     "react-redux": "^7.2.4",
     "redux": "^4.1.0",
     "redux-devtools-extension": "^2.13.9",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "expo-image-picker": "~10.1.4",
+    "expo-file-system": "~11.0.2",
+    "expo-sqlite": "~9.1.0",
+    "expo-location": "~12.0.4",
+    "react-native-maps": "0.27.1"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0"

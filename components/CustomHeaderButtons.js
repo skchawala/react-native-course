@@ -12,7 +12,7 @@ const CustomHeaderButtons = (props) => {
       }}
     >
       <TouchableOpacity activeOpacity={0.6} onPress={onPress}>
-        <Ionicons name={iconName} size={size} color={color} />
+        <Ionicons name={iconName}  size={size} color={color} />
       </TouchableOpacity>
     </View>
   );
