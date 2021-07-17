@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import MainButton from "../../components/MainButton";
 import { useSelector, useDispatch } from "react-redux";
@@ -8,8 +8,18 @@ import colors from "../../constants/colors";
 import CardItem from "../../components/shop/CartItem";
 import { removeFromCart } from "../../store/actions/cart";
 import { addOrder } from "../../store/actions/orders";
-
 import Card from "../../components/Card";
+import * as Notifications from "expo-notifications";
+import axios from "axios";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+
 const CartScreen = (props) => {
   const cartTotalAmount = useSelector((state) => state.cart.totalAmount);
   const cartItems = useSelector((state) => {
@@ -32,6 +42,97 @@ const CartScreen = (props) => {
   const onRemove = (id) => {
     dispatch(removeFromCart(id));
   };
+
+  const [expoPushToken, setExpoPushToken] = useState("");
+  const [notification, setNotification] = useState(false);
+
+  const triggerNotificationHandler = () => {
+    // Notifications.scheduleNotificationAsync({
+    //   content: {
+    //     title: "Order Placed",
+    //     body: "Your order placed successfully.",
+    //     data: {
+    //       data: "test",
+    //     },
+    //   },
+    //   trigger: {
+    //     seconds: 1,
+    //   },
+    // });
+
+    const data = {
+      body: "Order Placed",
+      title: "Your order placed successfully.",
+      to: expoPushToken,
+    };
+    console.log(data);
+    // fetch("https://exp.host/--/api/v2/push/send", {
+    //   method: "POST",
+    //   headers: {
+    //     Host: "exp.host",
+    //     Accept: "application/json",
+    //     "Accept-Encoding": "gzip, deflate",
+    //     "Content-Type": "application/json",
+    //   },
+    //   data: JSON.stringify(data),
+    // })
+    //   .then((result) => {
+    //     console.log("success", JSON.stringify(result));
+    //   })
+    //   .catch((err) => {
+    //     console.log(JSON.stringify(err));
+    //   });
+
+    const config = {
+      headers: {
+        Host: "exp.host",
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+    };
+    axios
+      .post("https://exp.host/--/api/v2/push/send", data, config)
+      .then(function (response) {
+        console.log("response", response);
+      })
+      .catch(function (error) {
+        // handle error
+        console.log("error", error);
+      });
+  };
+
+  useEffect(() => {
+    // first get permissions if needed for ios/android
+    Notifications.getExpoPushTokenAsync()
+      .then((result) => {
+        console.log(result.data);
+        setExpoPushToken(result.data);
+      })
+      .catch((err) => {
+        console.log("err-getExpoPushTokenAsync", err);
+        setExpoPushToken("");
+      });
+  }, []);
+
+  useEffect(() => {
+    const backgroundSub = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        console.log("addNotificationResponseReceivedListener", response);
+      }
+    );
+
+    const forgroundSub = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log("addNotificationReceivedListener", notification);
+      }
+    );
+    return () => {
+      backgroundSub.remove();
+      forgroundSub.remove();
+    };
+  }, []);
+
   return (
     <View style={styles.root}>
       <Card style={styles.summary}>
@@ -46,6 +147,7 @@ const CartScreen = (props) => {
           backgroundColor={colors.accent}
           onPress={() => {
             dispatch(addOrder(cartItems, cartTotalAmount));
+            triggerNotificationHandler();
           }}
         >
           Order Now
